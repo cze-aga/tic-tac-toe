@@ -45,67 +45,15 @@ function Square(props) {
 
   
   class Board extends React.Component {
-    constructor(props){
-        super(props);
-        this.state = {
-            squares: Array(9).fill(null),
-            xIsNext: true,
-        }
-    }
-    
-
-    handleClick(i){
-        /*we call .slice() to create a copy of the squares
-         array to modify instead of modifying the existing
-         array
-         There are generally two approaches to changing data.
-         The first approach is to mutate the data by directly
-         changing the data’s values. The second approach is 
-         to replace the data with a new copy which has the 
-         desired changes.
-         
-         var player = {score: 1, name: 'Jeff'};
-         var newPlayer = Object.assign({}, player, {score: 2});
-         Or if you are using object spread syntax proposal, you can write:
-         var newPlayer = {...player, score: 2};
-         */
-        const modifySquares = this.state.squares.slice();
-
-        if(helpers.calculateWinner(modifySquares) || modifySquares[i])
-        {
-            return;
-        }
-        
-        modifySquares[i] = this.state.xIsNext ? 'X' : 'O';
-        this.setState({
-            squares: modifySquares,
-            xIsNext: !this.state.xIsNext,    
-        });
-    }
-
-
     renderSquare(i) {
       return <Square 
-      value = {this.state.squares[i]}
-      onClick = {() => this.handleClick(i)}/>;
+      value = {this.props.squares[i]}
+      onClick = {() => this.props.onClick(i)}/>;
     }
   
     render() {
-        const winner = helpers.calculateWinner(this.state.squares);
-        let status;
-        if(winner)
-        {
-            status = 'Winner: ' + winner;
-        }
-        else
-        {
-            status = 'Next player: ' + 
-            (this.state.xIsNext ? 'X' : 'O');
-        }
-
       return (
         <div>
-          <div className="status">{status}</div>
           <div className="board-row">
             {this.renderSquare(0)}
             {this.renderSquare(1)}
@@ -127,15 +75,110 @@ function Square(props) {
   }
   
   class Game extends React.Component {
+   constructor(props){
+       super(props);
+       this.state = {
+           history: [
+               {squares: Array(9).fill(null)
+            }
+           ],
+           stepNumber: 0,
+           xIsNext: true,
+       }
+   }
+   
+
+   jumpTo(step){
+       this.setState(
+           {
+                stepNumber: step,
+                xIsNext:(step%2) === 0,
+           }
+       );
+   }
+
+   handleClick(i){
+    /*we call .slice() to create a copy of the squares
+     array to modify instead of modifying the existing
+     array
+     There are generally two approaches to changing data.
+     The first approach is to mutate the data by directly
+     changing the data’s values. The second approach is 
+     to replace the data with a new copy which has the 
+     desired changes.
+     
+     var player = {score: 1, name: 'Jeff'};
+     var newPlayer = Object.assign({}, player, {score: 2});
+     Or if you are using object spread syntax proposal, you can write:
+     var newPlayer = {...player, score: 2};
+     */
+    const history = this.state.history.slice(0, this.state.stepNumber + 1);
+    const current = history[history.length -1];
+    const squares = current.squares.slice();
+
+    if(helpers.calculateWinner(squares) || squares[i])
+    {
+        return;
+    }
+    
+    squares[i] = this.state.xIsNext ? 'X' : 'O';
+    
+    this.setState({
+        /*Unlike the array push() method you might be more
+         familiar with, the concat() method doesn’t mutate 
+         the original array, so we prefer it.
+        */
+        history: history.concat([
+            {squares: squares,}
+        ])  ,
+        xIsNext: !this.state.xIsNext,
+        stepNumber: history.length,
+    });
+}
+   
     render() {
-      return (
+        const history = this.state.history;
+        const current = history[this.state.stepNumber];
+        const winner = helpers.calculateWinner(current.squares);
+        let status;
+        if(winner)
+        {
+            status = 'Winner ' + winner;
+        }
+        else
+        {
+            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+        }
+
+        //move is the index
+        //each past move has a unique ID associated with it: 
+        //it’s the sequential number of the move.
+        const moves = history.map((step, move) => {
+            const desc = move ? 
+            'Goto move #' + move :
+            'Goto game start';
+
+            return(
+                <li key={move}>
+                    <button onClick ={() => this.jumpTo(move)}>
+                        {desc}
+                    </button>
+                </li>
+            );
+
+
+        });
+
+        return (
         <div className="game">
           <div className="game-board">
-            <Board />
+            <Board 
+                squares= {current.squares}
+                onClick={(i) => this.handleClick(i)}/>
           </div>
           <div className="game-info">
-            <div>{/* status */}</div>
-            <ol>{/* TODO */}</ol>
+            <div>{status}</div>
+            <ol>{moves}</ol>
           </div>
         </div>
       );
