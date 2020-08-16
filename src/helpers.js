@@ -28,7 +28,10 @@ function calculateWinner(squares) {
   function getCoordinates(i){
       var x = parseInt(i/3);
       var y = parseInt(i % 3);
-      return '('+ x +','+ y +')';
+      return {
+        x: x,
+        y: y
+      };
   }
 
   export {calculateWinner, getCoordinates};

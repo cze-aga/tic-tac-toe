@@ -35,9 +35,12 @@ The Board has full control over them. */
 
 
 function Square(props) {
+    let markAsCurrent = props.markAsCurrent === true ? 'red' : 'black';
     return (
         <button className="square" 
-        onClick = {props.onClick}>
+        onClick = {props.onClick}
+        style = {{color: markAsCurrent}}
+        >
             {props.value}
         </button>
     );
@@ -47,18 +50,12 @@ function Square(props) {
   class Board extends React.Component {
     
     renderSquare(i) {
-    if(i === this.props.coordinates)
-    {
-      return <Square 
-      value = {this.props.squares[i]} 
-      onClick = {() => this.props.onClick(i)}/>;
-    }
-      else
-    {
-        return <Square 
-        value = {this.props.squares[i]}
+        var markAsCurrent = i === this.props.indexToPaint.x * 3 + this.props.indexToPaint.y;
+        return <Square
+        markAsCurrent = {markAsCurrent}
+        value = {this.props.squares[i]} 
         onClick = {() => this.props.onClick(i)}/>;
-      }
+       
     }
   
     render() {
@@ -91,7 +88,7 @@ function Square(props) {
            history: [
             {
                 squares: Array(9).fill(null),
-                coordinates: '',
+                coordinates: Array(2).fill(null),
             }
            ],
            stepNumber: 0,
@@ -144,7 +141,11 @@ function Square(props) {
         history: history.concat([
             {
                 squares: squares,
-                coordinates : coordinates,
+                coordinates : 
+                {
+                    x: coordinates.x,
+                    y: coordinates.y
+                },
             }
         ]) ,
         xIsNext: !this.state.xIsNext,
@@ -171,7 +172,7 @@ function Square(props) {
         //it’s the sequential number of the move.
         const moves = history.map((step, move) => {
             const desc = move ? 
-            'Goto move #' + move  + " " + step.coordinates :
+            'Goto move #' + move  + " (" + step.coordinates.x  + "," + step.coordinates.y + ")" :
             'Goto game start';
 
             return(
