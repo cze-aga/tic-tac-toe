@@ -45,10 +45,20 @@ function Square(props) {
 
   
   class Board extends React.Component {
+    
     renderSquare(i) {
+    if(i === this.props.coordinates)
+    {
       return <Square 
-      value = {this.props.squares[i]}
+      value = {this.props.squares[i]} 
       onClick = {() => this.props.onClick(i)}/>;
+    }
+      else
+    {
+        return <Square 
+        value = {this.props.squares[i]}
+        onClick = {() => this.props.onClick(i)}/>;
+      }
     }
   
     render() {
@@ -79,7 +89,9 @@ function Square(props) {
        super(props);
        this.state = {
            history: [
-               {squares: Array(9).fill(null)
+            {
+                squares: Array(9).fill(null),
+                coordinates: '',
             }
            ],
            stepNumber: 0,
@@ -115,6 +127,7 @@ function Square(props) {
     const history = this.state.history.slice(0, this.state.stepNumber + 1);
     const current = history[history.length -1];
     const squares = current.squares.slice();
+    const coordinates = helpers.getCoordinates(i);
 
     if(helpers.calculateWinner(squares) || squares[i])
     {
@@ -122,15 +135,18 @@ function Square(props) {
     }
     
     squares[i] = this.state.xIsNext ? 'X' : 'O';
-    
+
     this.setState({
         /*Unlike the array push() method you might be more
          familiar with, the concat() method doesn’t mutate 
          the original array, so we prefer it.
         */
         history: history.concat([
-            {squares: squares,}
-        ])  ,
+            {
+                squares: squares,
+                coordinates : coordinates,
+            }
+        ]) ,
         xIsNext: !this.state.xIsNext,
         stepNumber: history.length,
     });
@@ -155,7 +171,7 @@ function Square(props) {
         //it’s the sequential number of the move.
         const moves = history.map((step, move) => {
             const desc = move ? 
-            'Goto move #' + move :
+            'Goto move #' + move  + " " + step.coordinates :
             'Goto game start';
 
             return(
@@ -174,6 +190,7 @@ function Square(props) {
           <div className="game-board">
             <Board 
                 squares= {current.squares}
+                indexToPaint = {current.coordinates}
                 onClick={(i) => this.handleClick(i)}/>
           </div>
           <div className="game-info">

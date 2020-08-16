@@ -25,4 +25,10 @@ function calculateWinner(squares) {
   }
 
 
-  export {calculateWinner};
+  function getCoordinates(i){
+      var x = parseInt(i/3);
+      var y = parseInt(i % 3);
+      return '('+ x +','+ y +')';
+  }
+
+  export {calculateWinner, getCoordinates};
