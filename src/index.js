@@ -64,24 +64,23 @@ function Square(props) {
     }
   
     render() {
-    let boardSquares = [];
+        let boardSquares = [];
 
-    for(let row = 0; row < 3; row ++)
-    {
-        let boardRow = [];
-        for(let col = 0; col < 3; col++)
+        for(let row = 0; row < 3; row ++)
         {
-            boardRow.push(<span key={(row * 3) + col}>{this.renderSquare((row * 3) + col)}</span>);
+            let boardRow = [];
+            for(let col = 0; col < 3; col++)
+            {
+                boardRow.push(<span key={(row * 3) + col}>{this.renderSquare((row * 3) + col)}</span>);
+            }
+            boardSquares.push(<div key={row} className="board-row">{boardRow}</div>);
         }
-        boardSquares.push(<div className="board-row">{boardRow}</div>);
-    }
 
-      return (
-       
-        <div>
-            {boardSquares}
-        </div>
-      );
+        return (
+            <div>
+                {boardSquares}
+            </div>
+        );
     }
   }
   
