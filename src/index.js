@@ -50,7 +50,8 @@ function Square(props) {
   class Board extends React.Component {
     
     renderSquare(i) {
-        var markAsCurrent = i === this.props.indexToPaint.x * 3 + this.props.indexToPaint.y;
+        var markAsCurrent =this.props.indexToPaint && 
+             (i === this.props.indexToPaint.x * 3 + this.props.indexToPaint.y);
         if(this.props.winningCoordinates && this.props.winningCoordinates.includes(i))
         {
             markAsCurrent = true;
@@ -142,12 +143,19 @@ function Square(props) {
     const squares = current.squares.slice();
     const coordinates = helpers.getCoordinates(i);
 
-    if(helpers.calculateWinner(squares) !== null || squares[i])
+    let winner = helpers.calculateWinner(squares);
+    if(winner !== null || squares[i])
     {
         return;
     }
     
     squares[i] = this.state.xIsNext ? 'X' : 'O';
+
+    let gameWithoutWinner = false;
+    if(history.length === 9 && winner === null)
+    {
+        gameWithoutWinner = true;
+    }
 
     this.setState({
         /*Unlike the array push() method you might be more
@@ -164,7 +172,7 @@ function Square(props) {
                 },
             }
         ]) ,
-        xIsNext: !this.state.xIsNext,
+        xIsNext: gameWithoutWinner ? null : !this.state.xIsNext,
         stepNumber: history.length,
     });
 }
@@ -181,7 +189,9 @@ function Square(props) {
         }
         else
         {
-            status = 'Next player: ' + (this.state.xIsNext ? 'X' : '0');
+            status = 
+            this.state.xIsNext === null ? 'Game without the winner' :
+                ('Next player: ' + (this.state.xIsNext ? 'X' : '0'));
         }
 
         //move is the index
@@ -203,12 +213,14 @@ function Square(props) {
 
         });
 
+        var indexToPaint = this.state.xIsNext === null ? null : current.coordinates;
+
         return (
         <div className="game">
           <div className="game-board">
             <Board 
                 squares= {current.squares}
-                indexToPaint = {current.coordinates}
+                indexToPaint = {indexToPaint}
                 winningCoordinates = {winner?.winningCoordinates}
                 onClick={(i) => this.handleClick(i)}/>
           </div>
