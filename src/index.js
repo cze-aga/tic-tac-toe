@@ -51,6 +51,11 @@ function Square(props) {
     
     renderSquare(i) {
         var markAsCurrent = i === this.props.indexToPaint.x * 3 + this.props.indexToPaint.y;
+        if(this.props.winningCoordinates && this.props.winningCoordinates.includes(i))
+        {
+            markAsCurrent = true;
+        }
+        
         return <Square
         markAsCurrent = {markAsCurrent}
         value = {this.props.squares[i]} 
@@ -66,7 +71,7 @@ function Square(props) {
         let boardRow = [];
         for(let col = 0; col < 3; col++)
         {
-            boardRow.push(<span>{this.renderSquare((row * 3) + col)}</span>);
+            boardRow.push(<span key={(row * 3) + col}>{this.renderSquare((row * 3) + col)}</span>);
         }
         boardSquares.push(<div className="board-row">{boardRow}</div>);
     }
@@ -138,7 +143,7 @@ function Square(props) {
     const squares = current.squares.slice();
     const coordinates = helpers.getCoordinates(i);
 
-    if(helpers.calculateWinner(squares) || squares[i])
+    if(helpers.calculateWinner(squares) !== null || squares[i])
     {
         return;
     }
@@ -172,7 +177,8 @@ function Square(props) {
         let status;
         if(winner)
         {
-            status = 'Winner ' + winner;
+            status = 'Winner ' + winner.winner + " (" +(winner.winningCoordinates[0] +
+            " " + winner.winningCoordinates[1] +" "+ winner.winningCoordinates[2]) + ")";
         }
         else
         {
@@ -204,6 +210,7 @@ function Square(props) {
             <Board 
                 squares= {current.squares}
                 indexToPaint = {current.coordinates}
+                winningCoordinates = {winner?.winningCoordinates}
                 onClick={(i) => this.handleClick(i)}/>
           </div>
           <div className="game-info">
