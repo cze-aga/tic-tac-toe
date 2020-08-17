@@ -105,6 +105,19 @@ function Square(props) {
        );
    }
 
+
+   sortList(){
+       let reversedEnd = this.state.history.slice(1).reverse();
+       let finalList = this.state.history.slice(0,1).concat(reversedEnd);
+      
+       this.setState(
+        {
+            history: finalList,
+            stepNumber: finalList.length - 1,
+        }
+       );
+   }
+
    handleClick(i){
     /*we call .slice() to create a copy of the squares
      array to modify instead of modifying the existing
@@ -163,7 +176,7 @@ function Square(props) {
         }
         else
         {
-            status = 'Next player: ' + (this.state.xIsNext ? 'X' : 'O');
+            status = 'Next player: ' + (this.state.xIsNext ? 'X' : '0');
         }
 
         //move is the index
@@ -196,6 +209,9 @@ function Square(props) {
           <div className="game-info">
             <div>{status}</div>
             <ol>{moves}</ol>
+          </div>
+          <div className="game-info">
+            <button onClick={() => this.sortList()}>Sort list</button>
           </div>
         </div>
       );
